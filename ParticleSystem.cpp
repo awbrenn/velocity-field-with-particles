@@ -75,7 +75,7 @@ void makeVelocityGrid() {
   int yres = velocity_grid.y_res;
   int zres = velocity_grid.z_res;
 
-  glColor3f(1.0f, 1.0f, 0.0f);
+  glColor4f(1.0f, 1.0f, 0.0f, 0.1f);
   glLineWidth(1.0f);
 
   for (int zi = 0; zi < zres; ++zi) {
@@ -108,8 +108,8 @@ void initCamera() {
   glShadeModel(GL_SMOOTH);
   glDepthRange(0.0f, 1.0f);
 
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
+//  glEnable(GL_DEPTH_TEST);
+//  glDepthFunc(GL_LEQUAL);
   glEnable(GL_NORMALIZE);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
