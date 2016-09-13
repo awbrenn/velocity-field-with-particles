@@ -14,6 +14,7 @@ class VelocityGrid {
     Vector3d min_coord; // the bottom back left corner of the volume
     Vector3d max_coord; // the top front right corner of the volume
     vector<Vector3d> velocities;
+    Vector3d spacing;
     vector<Vector3d> voxel_locations;
 
     // get a velocity by a flat index
@@ -27,6 +28,9 @@ class VelocityGrid {
 
     // get a velocity from an x, y, and z index
     Vector3d get_velocity(int xi, int yi, int zi);
+
+    // get a velocity from an x, y, and z index
+    Vector3d get_velocity(Vector3d location);
 
     // generate a locations for the center of each voxel
     void generate_voxel_locations();

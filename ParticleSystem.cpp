@@ -75,7 +75,7 @@ void makeVelocityGrid() {
   int yres = velocity_grid.y_res;
   int zres = velocity_grid.z_res;
 
-  glColor4f(1.0f, 1.0f, 0.0f, 0.1f);
+  glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
   glLineWidth(1.0f);
 
   for (int zi = 0; zi < zres; ++zi) {
