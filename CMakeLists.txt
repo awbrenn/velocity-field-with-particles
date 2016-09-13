@@ -11,6 +11,6 @@ find_library(GLUT "glut")
 find_library(GL "GL")
 find_library(GLU "GLU")
 
-set(SOURCE_FILES ${PROJECT_NAME}.cpp Utility.cpp Camera.cpp Matrix.cpp Vector.cpp)
+set(SOURCE_FILES ${PROJECT_NAME}.cpp Utility.cpp Camera.cpp Matrix.cpp Vector.cpp FGAFile.cpp FGAFile.h VelocityGrid.cpp VelocityGrid.h)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${GLUT} ${GL} ${GLU} ${OIIO})

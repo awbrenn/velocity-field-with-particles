@@ -8,7 +8,7 @@
 // Minor Modifications by Yujie Shu, 2012
 //
 #include "Camera.h"
-#include <vector>
+#include "FGAFile.h"
 
 #ifdef __APPLE__
 #  pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -21,6 +21,7 @@ int WIDTH = 1280;
 int HEIGHT = 720;
 
 Camera *camera;
+VelocityGrid velocity_grid;
 //Solver *solver;
 
 bool showGrid = true;
@@ -144,6 +145,13 @@ void keyboardEventHandler(unsigned char key, int x, int y) {
 }
 
 int main(int argc, char *argv[]) {
+  if (argc != 2) {
+    cerr << "Proper Usage: $> ParticleSystem velocity_grid.fga" << endl;
+    exit(-1);
+  }
+
+  FGAFile fga_file;
+  fga_file.read(argv[1], &velocity_grid);
 
   // set up opengl window
   glutInit(&argc, argv);
