@@ -70,6 +70,33 @@ void makeGrid() {
   glLineWidth(1.0f);
 }
 
+void makeVelocityGrid() {
+  int xres = velocity_grid.x_res;
+  int yres = velocity_grid.y_res;
+  int zres = velocity_grid.z_res;
+
+  glColor3f(1.0f, 1.0f, 0.0f);
+  glLineWidth(1.0f);
+
+  for (int zi = 0; zi < zres; ++zi) {
+    for (int yi = 0; yi < yres; ++yi) {
+      for (int xi = 0; xi < xres; ++xi) {
+        Vector3d voxel_loc = velocity_grid.get_voxel_location(xi, yi, zi);
+        Vector3d velocity = velocity_grid.get_velocity(xi, yi, zi);
+        glBegin(GL_LINES);
+        glVertex3f((GLfloat) voxel_loc.x,
+                   (GLfloat) voxel_loc.y,
+                   (GLfloat) voxel_loc.z);
+        glVertex3f((GLfloat) (voxel_loc.x + velocity.x),
+                   (GLfloat) (voxel_loc.y + velocity.y),
+                   (GLfloat) (voxel_loc.z + velocity.z));
+        glEnd();
+      }
+    }
+  }
+}
+
+
 void initCamera() {
   // set up camera
   // parameters are eye point, aim point, up vector
@@ -88,11 +115,6 @@ void initCamera() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void simulateParticles() {
-  // TODO Add simulation step
-}
-
-
 void perspDisplay() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -105,8 +127,14 @@ void perspDisplay() {
   if (showGrid)
     makeGrid();
 
+  makeVelocityGrid();
+
   glFlush();
   glutSwapBuffers();
+}
+
+void simulateParticles() {
+  // TODO Add simulation step
 }
 
 void mouseEventHandler(int button, int state, int x, int y) {
@@ -152,6 +180,7 @@ int main(int argc, char *argv[]) {
 
   FGAFile fga_file;
   fga_file.read(argv[1], &velocity_grid);
+  velocity_grid.generate_voxel_locations();
 
   // set up opengl window
   glutInit(&argc, argv);
