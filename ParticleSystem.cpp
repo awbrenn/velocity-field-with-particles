@@ -1,14 +1,9 @@
 //
-// CameraExample.cpp
-//
-// Example program to show how to use Chris Root's OpenGL Camera Class
-// 
-// Christopher Root, 2006
-// Minor Modifications by Donald House, 2009
-// Minor Modifications by Yujie Shu, 2012
+// Created by Austin Brennan on 9/12/16
 //
 #include "Camera.h"
 #include "FGAFile.h"
+#include "Solver.h"
 
 #ifdef __APPLE__
 #  pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -22,12 +17,13 @@ int HEIGHT = 720;
 
 Camera *camera;
 VelocityGrid velocity_grid;
-//Solver *solver;
+Solver *solver;
 
-bool showGrid = true;
+bool showReferenceGrid = true;
+bool showVelocityGrid = false;
 
 // draws a simple grid
-void makeGrid() {
+void makeReferenceGrid() {
   glColor3f(0.0f, 0.0f, 0.0f);
 
   glLineWidth(1.0f);
@@ -75,7 +71,7 @@ void makeVelocityGrid() {
   int yres = velocity_grid.y_res;
   int zres = velocity_grid.z_res;
 
-  glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
+  glColor4f(1.0f, 1.0f, 0.0f, 0.1f);
   glLineWidth(1.0f);
 
   for (int zi = 0; zi < zres; ++zi) {
@@ -124,17 +120,21 @@ void perspDisplay() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  if (showGrid)
-    makeGrid();
-
-  makeVelocityGrid();
+  if (showReferenceGrid)
+    makeReferenceGrid();
+  if (showVelocityGrid)
+    makeVelocityGrid();
 
   glFlush();
   glutSwapBuffers();
 }
 
 void simulateParticles() {
-  // TODO Add simulation step
+  solver->update();
+}
+
+void initializeSimulation() {
+  solver = new Solver(10, Emitter(1.0f, 1.0f, false, Vector3d()), 0.001, 20);
 }
 
 void mouseEventHandler(int button, int state, int x, int y) {
@@ -161,7 +161,7 @@ void keyboardEventHandler(unsigned char key, int x, int y) {
     break;
 
   case 'g': case 'G':
-    showGrid = !showGrid;
+    showReferenceGrid = !showReferenceGrid;
     break;
 
   case 'q': case 'Q':	// q or esc - quit
@@ -181,6 +181,8 @@ int main(int argc, char *argv[]) {
   FGAFile fga_file;
   fga_file.read(argv[1], &velocity_grid);
   velocity_grid.generate_voxel_locations();
+
+  initializeSimulation();
 
   // set up opengl window
   glutInit(&argc, argv);
