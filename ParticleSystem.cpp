@@ -23,7 +23,7 @@ bool showReferenceGrid = true;
 bool showVelocityGrid = false;
 
 // draws a simple grid
-void makeReferenceGrid() {
+void drawReferenceGrid() {
   glColor3f(0.0f, 0.0f, 0.0f);
 
   glLineWidth(1.0f);
@@ -66,7 +66,7 @@ void makeReferenceGrid() {
   glLineWidth(1.0f);
 }
 
-void makeVelocityGrid() {
+void drawVelocityGrid() {
   int xres = velocity_grid.x_res;
   int yres = velocity_grid.y_res;
   int zres = velocity_grid.z_res;
@@ -89,6 +89,19 @@ void makeVelocityGrid() {
         glEnd();
       }
     }
+  }
+}
+
+void drawParticles() {
+  glPointSize(2.5f);
+  glColor3f(0.12843f, 0.0f, 0.7823f);
+
+  for (auto p = solver->particles.begin(); p != solver->particles.end(); ++p) {
+    glBegin(GL_POINTS);
+    glVertex3f((GLfloat) p->pos.x,
+               (GLfloat) p->pos.y,
+               (GLfloat) p->pos.z);
+    glEnd();
   }
 }
 
@@ -121,9 +134,10 @@ void perspDisplay() {
   glLoadIdentity();
 
   if (showReferenceGrid)
-    makeReferenceGrid();
+    drawReferenceGrid();
   if (showVelocityGrid)
-    makeVelocityGrid();
+    drawVelocityGrid();
+  drawParticles();
 
   glFlush();
   glutSwapBuffers();
@@ -131,10 +145,11 @@ void perspDisplay() {
 
 void simulateParticles() {
   solver->update();
+  glutPostRedisplay();
 }
 
 void initializeSimulation() {
-  solver = new Solver(10, Emitter(1.0f, 1.0f, false, Vector3d()), 0.001, 20);
+  solver = new Solver(1000, Emitter(100.0f, 0.54f, false, Vector3d()), 0.001, 20);
 }
 
 void mouseEventHandler(int button, int state, int x, int y) {

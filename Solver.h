@@ -6,25 +6,31 @@
 #define PARTICLESYSTEM_SOLVER_H
 
 #include "Emitter.h"
+#include <random>
 #include <vector>
 
 class Solver {
   private:
     // Member variables
     size_t max_num_of_particles; // maximum number of particles
-    std::vector<Particle> particles;
     std::vector<size_t> inactive_indices;
     std::vector<Emitter> emitters;
     double h; // timestep
     size_t substeps;
     double missed_particle; // fraction of a particle to emit in a later timestep
+    std::default_random_engine generator;
 
+    double uniform_distribution(double min, double max);
+    double gaussian_distribution(double x, double std_deviation);
+    void emitParticles(size_t number_of_particles, vector<Emitter>::iterator emitter);
     size_t getNumerOfParticlesToEmit(vector<Emitter>::iterator emitter);
 
     // Constructor helper
     void init(size_t max_num_of_particles, std::vector<Emitter> emitters, double h, size_t substeps);
 
   public:
+    std::vector<Particle> particles;
+
     // Constructors
     Solver(size_t max_num_of_particles, std::vector<Emitter> emitters, double h, size_t substeps);
     Solver(size_t max_num_of_particles, Emitter emitter, double h, size_t substeps);

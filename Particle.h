@@ -8,9 +8,12 @@
 #include "Matrix.h"
 
 class Particle {
-  Vector3d pos;
-  Vector3d vel;
-  double mass;
+  public:
+    Vector3d pos;
+    Vector3d vel;
+    double mass;
+
+    Particle(Vector3d pos, Vector3d vel, double mass);
 };
 
 
