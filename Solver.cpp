@@ -4,31 +4,51 @@
 
 #include "Solver.h"
 
-Solver::Solver(size_t Max_num_of_particles, std::vector<Emitter> Emitters, double h, size_t substeps) {
-  init(Max_num_of_particles, Emitters, h, substeps);
+Solver::Solver(size_t Max_num_of_particles, std::vector<Emitter> Emitters,
+               VelocityGrid velocity_grid, double h, size_t substeps) {
+  init(Max_num_of_particles, Emitters, velocity_grid, h, substeps);
 }
 
-Solver::Solver(size_t Max_num_of_particles, Emitter emitter, double h, size_t substeps) {
+Solver::Solver(size_t Max_num_of_particles, Emitter emitter,
+               VelocityGrid velocity_grid, double h, size_t substeps) {
   std::vector<Emitter> emitter_vector;
   emitter_vector.push_back(emitter);
-  init(Max_num_of_particles, emitter_vector,h,substeps);
+  init(Max_num_of_particles, emitter_vector, velocity_grid, h,substeps);
 }
 
-void Solver::init(size_t Max_num_of_particles, std::vector<Emitter> Emitters, double H, size_t Substeps) {
+void Solver::init(size_t Max_num_of_particles, std::vector<Emitter> Emitters,
+                  VelocityGrid Velocity_grid, double H, size_t Substeps) {
   srand (time(NULL));
   max_num_of_particles = Max_num_of_particles;
   particles.reserve(max_num_of_particles);
   inactive_indices.reserve(max_num_of_particles);
   emitters = Emitters;
+  velocity_grid = Velocity_grid;
   h = H;
   substeps = Substeps;
   missed_particle = 0.0;
 }
 
+
+void Solver::updateParticles() {
+  Vector3d vel_from_grid; // velocity from the velocity grid
+  Vector3d vel_new;
+
+  for(auto p = particles.begin(); p != particles.end(); ++p) {
+    vel_from_grid = velocity_grid.get_velocity(p->pos);
+
+    vel_new = p->vel + vel_from_grid * h;
+    p->pos = p->pos + ((vel_new + p->vel) / 2.0) * h;
+    p->vel = vel_new;
+  }
+}
+
+
 void Solver::update() {
   size_t particles_to_emit;
 
   for(int i = 0; i < substeps; ++i) {
+    // if we can still emit particles, emit them
     if (particles.size() < max_num_of_particles) {
       for (auto emitter = emitters.begin(); emitter != emitters.end(); ++emitter) {
         // get the number of particles to emit this timestep
@@ -38,7 +58,8 @@ void Solver::update() {
         emitParticles(particles_to_emit, emitter);
       }
     }
-    else { break; }
+    // move the particles
+    updateParticles();
   }
 }
 

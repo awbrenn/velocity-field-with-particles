@@ -39,7 +39,21 @@ Vector3d VelocityGrid::get_velocity(int xi, int yi, int zi) {
   return velocities[xi + yi * x_res + zi * x_res * y_res];
 }
 
-Vector3d VelocityGrid::get_velocity(Vector3d location) {
+Vector3d VelocityGrid::get_velocity(Vector3d particle_position) {
   int xi, yi, zi;
+  Vector3d velocity(0.0, 0.0, 0.0);
 
+  xi = (int) ((particle_position.x - min_coord.x) / spacing.x);
+  yi = (int) ((particle_position.y - min_coord.y) / spacing.y);
+  zi = (int) ((particle_position.z - min_coord.z) / spacing.z);
+
+//test to see if the particle is in the velocity grid
+  if (xi >= 0 and xi < x_res and
+      yi >= 0 and yi < y_res and
+      zi >= 0 and zi < z_res) {
+    velocity = get_velocity(xi, yi, zi);
+  }
+
+  return velocity;
+//  return get_velocity(xi % x_res, yi % y_res, zi % z_res);
 }

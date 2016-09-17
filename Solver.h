@@ -6,6 +6,7 @@
 #define PARTICLESYSTEM_SOLVER_H
 
 #include "Emitter.h"
+#include "VelocityGrid.h"
 #include <random>
 #include <vector>
 
@@ -23,17 +24,22 @@ class Solver {
     double uniform_distribution(double min, double max);
     double gaussian_distribution(double x, double std_deviation);
     void emitParticles(size_t number_of_particles, vector<Emitter>::iterator emitter);
+    void updateParticles();
     size_t getNumerOfParticlesToEmit(vector<Emitter>::iterator emitter);
+    VelocityGrid velocity_grid;
 
     // Constructor helper
-    void init(size_t max_num_of_particles, std::vector<Emitter> emitters, double h, size_t substeps);
+    void init(size_t max_num_of_particles, std::vector<Emitter> emitters,
+              VelocityGrid velocity_grid, double h, size_t substeps);
 
   public:
     std::vector<Particle> particles;
 
     // Constructors
-    Solver(size_t max_num_of_particles, std::vector<Emitter> emitters, double h, size_t substeps);
-    Solver(size_t max_num_of_particles, Emitter emitter, double h, size_t substeps);
+    Solver(size_t max_num_of_particles, std::vector<Emitter> emitters,
+           VelocityGrid velocity_grid, double h, size_t substeps);
+    Solver(size_t max_num_of_particles, Emitter emitter,
+           VelocityGrid velocity_grid, double h, size_t substeps);
 
     // Member functions
     void update();

@@ -20,7 +20,7 @@ VelocityGrid velocity_grid;
 Solver *solver;
 
 bool showReferenceGrid = true;
-bool showVelocityGrid = false;
+bool showVelocityGrid = true;
 
 // draws a simple grid
 void drawReferenceGrid() {
@@ -149,7 +149,7 @@ void simulateParticles() {
 }
 
 void initializeSimulation() {
-  solver = new Solver(1000, Emitter(100.0f, 0.54f, false, Vector3d()), 0.001, 20);
+  solver = new Solver(1000, Emitter(100.0f, 2.0f, false, Vector3d()), velocity_grid, 0.001, 20);
 }
 
 void mouseEventHandler(int button, int state, int x, int y) {
