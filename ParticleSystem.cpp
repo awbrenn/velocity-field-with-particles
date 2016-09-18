@@ -105,6 +105,17 @@ void drawParticles() {
 }
 
 
+void drawColliders() {
+  for(auto c = solver->colliders.begin(); c != solver->colliders.end(); ++c) {
+    glColor3f(0.1, 1.0, 0.1);
+    GLUquadric *quad;
+    quad = gluNewQuadric();
+    glTranslatef(c->pos.x,c->pos.y, c->pos.z);
+    gluSphere(quad, c->radius, 100, 20);
+  }
+}
+
+
 void initCamera() {
   // set up camera
   // parameters are eye point, aim point, up vector
@@ -137,6 +148,7 @@ void perspDisplay() {
   if (showVelocityGrid)
     drawVelocityGrid();
   drawParticles();
+  drawColliders();
 
   glFlush();
   glutSwapBuffers();
@@ -151,12 +163,14 @@ void initializeSimulation(char *paramfile_name) {
   std::ifstream paramfile_stream;
   std::string velocity_grid_name;
   double emission_rate, emitter_radius, timestep,
-         emitter_position_x, emitter_position_y, emitter_position_z,
          particle_mass_avg, particle_mass_sdv,
-         particle_life_avg, particle_life_sdv;
+         particle_life_avg, particle_life_sdv,
+         collider_radius;
   size_t max_number_of_particles, substeps;
   bool emit_on_surface;
+  Vector3d emitter_position, collider_position;
   std::vector<Emitter> emitters;
+  std::vector<Collider> colliders;
   std::string skipline;
 
   paramfile_stream.open(paramfile_name, std::ios_base::in);
@@ -176,14 +190,15 @@ void initializeSimulation(char *paramfile_name) {
 
     // extract emitter values
     paramfile_stream >> emission_rate >> emitter_radius >>
-                        emitter_position_x >> emitter_position_y >>
-                        emitter_position_z >> std::boolalpha >> emit_on_surface;
+                        emitter_position.x >> emitter_position.y >>
+                        emitter_position.z >> std::boolalpha >> emit_on_surface;
 
     // skip some lines
     getline(paramfile_stream, skipline);
     getline(paramfile_stream, skipline);
     getline(paramfile_stream, skipline);
 
+    // extract particle values for current emitter
     paramfile_stream >> particle_mass_avg >> particle_mass_sdv;
 
     // skip some lines
@@ -191,12 +206,23 @@ void initializeSimulation(char *paramfile_name) {
     getline(paramfile_stream, skipline);
     getline(paramfile_stream, skipline);
 
+    // extract particle values for current emitter
     paramfile_stream >> particle_life_avg >> particle_life_sdv;
 
-    emitters.push_back(Emitter(emission_rate, emitter_radius, emit_on_surface,
-                               Vector3d(emitter_position_x, emitter_position_y, emitter_position_z),
+    emitters.push_back(Emitter(emission_rate, emitter_radius, emit_on_surface, emitter_position,
                                particle_mass_avg, particle_mass_sdv,
                                particle_life_avg, particle_life_sdv));
+
+    // skip some lines
+    getline(paramfile_stream, skipline);
+    getline(paramfile_stream, skipline);
+    getline(paramfile_stream, skipline);
+
+    // extract collider values
+    paramfile_stream >> collider_position.x >> collider_position.y >>
+                        collider_position.z >> collider_radius;
+
+    colliders.push_back(Collider(collider_position, collider_radius));
 
     // skip some lines
     getline(paramfile_stream, skipline);
@@ -217,7 +243,7 @@ void initializeSimulation(char *paramfile_name) {
   fga_file.read(velocity_grid_name, &velocity_grid);
   velocity_grid.generate_voxel_locations();
 
-  solver = new Solver(max_number_of_particles, emitters,
+  solver = new Solver(max_number_of_particles, emitters, colliders,
                       velocity_grid, timestep, substeps);
 
   cout << endl;

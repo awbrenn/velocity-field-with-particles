@@ -5,24 +5,20 @@
 #include "Solver.h"
 
 Solver::Solver(size_t Max_num_of_particles, std::vector<Emitter> Emitters,
-               VelocityGrid velocity_grid, double h, size_t substeps) {
-  init(Max_num_of_particles, Emitters, velocity_grid, h, substeps);
-}
-
-Solver::Solver(size_t Max_num_of_particles, Emitter emitter,
-               VelocityGrid velocity_grid, double h, size_t substeps) {
-  std::vector<Emitter> emitter_vector;
-  emitter_vector.push_back(emitter);
-  init(Max_num_of_particles, emitter_vector, velocity_grid, h,substeps);
+               std::vector<Collider> Colliders, VelocityGrid Velocity_grid,
+               double H, size_t Substeps) {
+  init(Max_num_of_particles, Emitters, Colliders, Velocity_grid, H, Substeps);
 }
 
 void Solver::init(size_t Max_num_of_particles, std::vector<Emitter> Emitters,
-                  VelocityGrid Velocity_grid, double H, size_t Substeps) {
-  srand (time(NULL));
+                  std::vector<Collider> Colliders, VelocityGrid Velocity_grid,
+                  double H, size_t Substeps) {
+  srand ((unsigned int) time(NULL));
   max_num_of_particles = Max_num_of_particles;
   particles.reserve(max_num_of_particles);
   inactive_indices.reserve(max_num_of_particles);
   emitters = Emitters;
+  colliders = Colliders;
   velocity_grid = Velocity_grid;
   h = H;
   substeps = Substeps;

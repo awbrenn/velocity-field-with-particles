@@ -7,6 +7,7 @@
 
 #include "Emitter.h"
 #include "VelocityGrid.h"
+#include "Collider.h"
 #include <random>
 #include <vector>
 #include <algorithm>
@@ -31,17 +32,16 @@ class Solver {
 
     // Constructor helper
     void init(size_t max_num_of_particles, std::vector<Emitter> emitters,
-              VelocityGrid velocity_grid, double h, size_t substeps);
+              std::vector<Collider> colliders, VelocityGrid velocity_grid, double h, size_t substeps);
 
   public:
     std::vector<Particle> particles;
+    std::vector<Collider> colliders;
     VelocityGrid velocity_grid;
 
     // Constructors
     Solver(size_t max_num_of_particles, std::vector<Emitter> emitters,
-           VelocityGrid velocity_grid, double h, size_t substeps);
-    Solver(size_t max_num_of_particles, Emitter emitter,
-           VelocityGrid velocity_grid, double h, size_t substeps);
+           std::vector<Collider> colliders, VelocityGrid velocity_grid, double h, size_t substeps);
 
     // Member functions
     void update();

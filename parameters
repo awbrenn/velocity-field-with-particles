@@ -2,13 +2,16 @@ Velocity grid filename
 /home/awbrenn/Documents/workspace/physanim/2/vel.74.fga
 
 Emission Rate, Emitter radius, Emitter position (x y z), Emit on surface
-       1000.0            2.0                0.0 0.0 0.0            false
+       1000.0             2.0               0.0 0.0 0.0            false
 
 Particle mass average, Particle mass standard deviation
-                 10.0                               5.0
+                 12.0                               5.0
 
 Particle lifetime average, Particle lifetime standard deviation
                       4.0                                   0.5
+
+Collider position (x y z), Collider radius
+              1.0 1.0 1.0              0.5
 
 Max number of particles, Timestep (h), Substeps (calculation steps per render)
                   200000         0.001        20
