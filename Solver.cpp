@@ -34,13 +34,20 @@ void Solver::updateParticles() {
   Vector3d vel_from_grid; // velocity from the velocity grid
   Vector3d vel_new;
 
+  // update the particle attributes
   for(auto p = particles.begin(); p != particles.end(); ++p) {
     vel_from_grid = velocity_grid.get_velocity(p->pos);
 
     vel_new = p->vel + vel_from_grid * h;
     p->pos = p->pos + ((vel_new + p->vel) / 2.0) * h;
     p->vel = vel_new;
+    p->life_left = p->life_left - h; // increment the lifetime down by a timestep
   }
+
+  // remove particles which have no life left
+  particles.erase(std::remove_if(particles.begin(), particles.end(),
+                                 [](const Particle & p) {return p.life_left <= 0.0; }),
+                  particles.end());
 }
 
 
@@ -78,15 +85,20 @@ void Solver::emitParticles(size_t number_of_particles, vector<Emitter>::iterator
   Vector3d pos; // initial position of particle
   Vector3d vel; // initial velocity of particle
   double mass; // initial mass of particle
+  double lifetime; // initial lifetime of particle
 
   for(int i = 0; i < number_of_particles; ++i) {
     // TODO: update this to actually emit in a sphere (Emitting in cube now)
+    // create initial particle attributes
     pos.x = emitter->pos.x + gaussian_distribution(emitter->pos.x, emitter->radius);
     pos.y = emitter->pos.y + gaussian_distribution(emitter->pos.y, emitter->radius);
     pos.z = emitter->pos.x + gaussian_distribution(emitter->pos.x, emitter->radius);
     vel = (0.0, 0.0, 0.0);
-    mass = 1.0;
-    particles.push_back(Particle(pos, vel, mass));
+    mass = gaussian_distribution(emitter->particle_mass_avg, emitter->particle_mass_sdv);
+    lifetime = gaussian_distribution(emitter->particle_life_avg, emitter->particle_life_sdv);
+
+    // create a new particle
+    particles.push_back(Particle(pos, vel, mass, lifetime));
   }
 }
 

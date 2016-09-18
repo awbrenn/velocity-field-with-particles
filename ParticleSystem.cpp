@@ -151,8 +151,9 @@ void initializeSimulation(char *paramfile_name) {
   std::ifstream paramfile_stream;
   std::string velocity_grid_name;
   double emission_rate, emitter_radius, timestep,
-         emitter_position_x, emitter_position_y,
-         emitter_position_z;
+         emitter_position_x, emitter_position_y, emitter_position_z,
+         particle_mass_avg, particle_mass_sdv,
+         particle_life_avg, particle_life_sdv;
   size_t max_number_of_particles, substeps;
   bool emit_on_surface;
   std::vector<Emitter> emitters;
@@ -178,9 +179,24 @@ void initializeSimulation(char *paramfile_name) {
                         emitter_position_x >> emitter_position_y >>
                         emitter_position_z >> std::boolalpha >> emit_on_surface;
 
+    // skip some lines
+    getline(paramfile_stream, skipline);
+    getline(paramfile_stream, skipline);
+    getline(paramfile_stream, skipline);
+
+    paramfile_stream >> particle_mass_avg >> particle_mass_sdv;
+
+    // skip some lines
+    getline(paramfile_stream, skipline);
+    getline(paramfile_stream, skipline);
+    getline(paramfile_stream, skipline);
+
+    paramfile_stream >> particle_life_avg >> particle_life_sdv;
+
     emitters.push_back(Emitter(emission_rate, emitter_radius, emit_on_surface,
-                               Vector3d(emitter_position_x, emitter_position_y,
-                                        emitter_position_z)));
+                               Vector3d(emitter_position_x, emitter_position_y, emitter_position_z),
+                               particle_mass_avg, particle_mass_sdv,
+                               particle_life_avg, particle_life_sdv));
 
     // skip some lines
     getline(paramfile_stream, skipline);

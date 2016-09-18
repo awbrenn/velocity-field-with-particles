@@ -9,6 +9,7 @@
 #include "VelocityGrid.h"
 #include <random>
 #include <vector>
+#include <algorithm>
 
 class Solver {
   private:
