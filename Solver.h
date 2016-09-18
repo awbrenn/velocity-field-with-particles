@@ -10,6 +10,7 @@
 #include <random>
 #include <vector>
 #include <algorithm>
+#include <cfloat>
 
 class Solver {
   private:

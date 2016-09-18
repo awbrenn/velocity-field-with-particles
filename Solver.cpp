@@ -33,17 +33,22 @@ void Solver::init(size_t Max_num_of_particles, std::vector<Emitter> Emitters,
 void Solver::updateParticles() {
   Vector3d vel_from_grid; // velocity from the velocity grid
   Vector3d vel_new;
+  double particle_mass;
 
   // update the particle attributes
   for(auto p = particles.begin(); p != particles.end(); ++p) {
     vel_from_grid = velocity_grid.get_velocity(p->pos);
 
-    vel_new = p->vel + vel_from_grid * h;
+    // adjust the mass in the case that we have a negative or zero mass
+    particle_mass = p->mass ? p->mass > 0.0 : DBL_MIN;
+
+    vel_new = p->vel + vel_from_grid * 1.0/particle_mass * h;
     p->pos = p->pos + ((vel_new + p->vel) / 2.0) * h;
     p->vel = vel_new;
     p->life_left = p->life_left - h; // increment the lifetime down by a timestep
   }
 
+  // TODO use an active and inactive list instead of creating and removing particles
   // remove particles which have no life left
   particles.erase(std::remove_if(particles.begin(), particles.end(),
                                  [](const Particle & p) {return p.life_left <= 0.0; }),

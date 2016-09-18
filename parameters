@@ -5,10 +5,10 @@ Emission Rate, Emitter radius, Emitter position (x y z), Emit on surface
        1000.0            2.0                0.0 0.0 0.0            false
 
 Particle mass average, Particle mass standard deviation
-                  1.0                               0.2
+                 10.0                               5.0
 
 Particle lifetime average, Particle lifetime standard deviation
-                      1.0                                   0.5
+                      4.0                                   0.5
 
 Max number of particles, Timestep (h), Substeps (calculation steps per render)
                   200000         0.001        20
