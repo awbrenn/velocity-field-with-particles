@@ -4,7 +4,7 @@
 
 #include "FGAFile.h"
 
-void FGAFile::read(const char *filename, VelocityGrid *velocity_grid) {
+void FGAFile::read(std::string filename, VelocityGrid *velocity_grid) {
   std::ifstream fga_stream;
   fga_stream.open(filename, std::ios_base::in);
   char seperator;

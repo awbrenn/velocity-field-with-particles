@@ -1,0 +1,8 @@
+Velocity grid filename
+/home/awbrenn/Documents/workspace/physanim/2/vel.74.fga
+
+Emission Rate, Emitter radius, Emitter position (x y z), Emit on surface
+        100.0            2.0                0.0 0.0 0.0            false
+
+Max number of particles, Timestep (h), Substeps (calculation steps per render)
+                   1000         0.001        20

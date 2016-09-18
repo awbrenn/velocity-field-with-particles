@@ -15,7 +15,7 @@ class FGAFile {
   public:
 //    int fp; // file pointer
 //    int reader
-    void read(const char* filename, VelocityGrid *velocity_grid);
+    void read(std::string filename, VelocityGrid *velocity_grid);
 };
 
 

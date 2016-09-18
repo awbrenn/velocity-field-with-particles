@@ -16,7 +16,6 @@ int WIDTH = 1280;
 int HEIGHT = 720;
 
 Camera *camera;
-VelocityGrid velocity_grid;
 Solver *solver;
 
 bool showReferenceGrid = true;
@@ -67,9 +66,9 @@ void drawReferenceGrid() {
 }
 
 void drawVelocityGrid() {
-  int xres = velocity_grid.x_res;
-  int yres = velocity_grid.y_res;
-  int zres = velocity_grid.z_res;
+  int xres = solver->velocity_grid.x_res;
+  int yres = solver->velocity_grid.y_res;
+  int zres = solver->velocity_grid.z_res;
 
   glColor4f(1.0f, 1.0f, 0.0f, 0.1f);
   glLineWidth(1.0f);
@@ -77,8 +76,8 @@ void drawVelocityGrid() {
   for (int zi = 0; zi < zres; ++zi) {
     for (int yi = 0; yi < yres; ++yi) {
       for (int xi = 0; xi < xres; ++xi) {
-        Vector3d voxel_loc = velocity_grid.get_voxel_location(xi, yi, zi);
-        Vector3d velocity = velocity_grid.get_velocity(xi, yi, zi);
+        Vector3d voxel_loc = solver->velocity_grid.get_voxel_location(xi, yi, zi);
+        Vector3d velocity = solver->velocity_grid.get_velocity(xi, yi, zi);
         glBegin(GL_LINES);
         glVertex3f((GLfloat) voxel_loc.x,
                    (GLfloat) voxel_loc.y,
@@ -148,8 +147,64 @@ void simulateParticles() {
   glutPostRedisplay();
 }
 
-void initializeSimulation() {
-  solver = new Solver(1000, Emitter(100.0f, 2.0f, false, Vector3d()), velocity_grid, 0.001, 20);
+void initializeSimulation(char *paramfile_name) {
+  std::ifstream paramfile_stream;
+  std::string velocity_grid_name;
+  double emission_rate, emitter_radius, timestep,
+         emitter_position_x, emitter_position_y,
+         emitter_position_z;
+  size_t max_number_of_particles, substeps;
+  bool emit_on_surface;
+  std::vector<Emitter> emitters;
+  std::string skipline;
+
+  paramfile_stream.open(paramfile_name, std::ios_base::in);
+
+  // read the file
+  if (paramfile_stream) {
+    // skip the first line
+    getline(paramfile_stream, skipline);
+
+    // extract the name of the velocity grid
+    paramfile_stream >> velocity_grid_name;
+
+    // skip some lines
+    getline(paramfile_stream, skipline);
+    getline(paramfile_stream, skipline);
+    getline(paramfile_stream, skipline);
+
+    // extract emitter values
+    paramfile_stream >> emission_rate >> emitter_radius >>
+                        emitter_position_x >> emitter_position_y >>
+                        emitter_position_z >> std::boolalpha >> emit_on_surface;
+
+    emitters.push_back(Emitter(emission_rate, emitter_radius, emit_on_surface,
+                               Vector3d(emitter_position_x, emitter_position_y,
+                                        emitter_position_z)));
+
+    // skip some lines
+    getline(paramfile_stream, skipline);
+    getline(paramfile_stream, skipline);
+    getline(paramfile_stream, skipline);
+
+    // extract solver values
+    paramfile_stream >> max_number_of_particles >> timestep >> substeps;
+  }
+  else {
+    std::cerr << "Unable to open file " << paramfile_name << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  // read the velocity grid
+  VelocityGrid velocity_grid;
+  FGAFile fga_file;
+  fga_file.read(velocity_grid_name, &velocity_grid);
+  velocity_grid.generate_voxel_locations();
+
+  solver = new Solver(max_number_of_particles, emitters,
+                      velocity_grid, timestep, substeps);
+
+  cout << endl;
 }
 
 void mouseEventHandler(int button, int state, int x, int y) {
@@ -189,15 +244,11 @@ void keyboardEventHandler(unsigned char key, int x, int y) {
 
 int main(int argc, char *argv[]) {
   if (argc != 2) {
-    cerr << "Proper Usage: $> ParticleSystem velocity_grid.fga" << endl;
+    cerr << "Proper Usage: $> ParticleSystem parameters_file" << endl;
     exit(-1);
   }
 
-  FGAFile fga_file;
-  fga_file.read(argv[1], &velocity_grid);
-  velocity_grid.generate_voxel_locations();
-
-  initializeSimulation();
+  initializeSimulation(argv[1]);
 
   // set up opengl window
   glutInit(&argc, argv);

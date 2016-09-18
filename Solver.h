@@ -26,7 +26,6 @@ class Solver {
     void emitParticles(size_t number_of_particles, vector<Emitter>::iterator emitter);
     void updateParticles();
     size_t getNumerOfParticlesToEmit(vector<Emitter>::iterator emitter);
-    VelocityGrid velocity_grid;
 
     // Constructor helper
     void init(size_t max_num_of_particles, std::vector<Emitter> emitters,
@@ -34,6 +33,7 @@ class Solver {
 
   public:
     std::vector<Particle> particles;
+    VelocityGrid velocity_grid;
 
     // Constructors
     Solver(size_t max_num_of_particles, std::vector<Emitter> emitters,
