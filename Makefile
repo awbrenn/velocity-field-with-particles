@@ -22,8 +22,8 @@ else
   endif
 endif
 
-HFILES 	= Matrix.${H} Vector.${H} Utility.${H} Camera.${H}
-OFILES 	= Matrix.o Vector.o Utility.o Camera.o
+HFILES 	= Matrix.${H} Vector.${H} Utility.${H} Camera.${H} Collider.${H} Emitter.${H} Particle.${H} Solver.${H} FGAFile.${H} VelocityGrid.${H}
+OFILES 	= Matrix.o Vector.o Utility.o Camera.o Collider.o Emitter.o Particle.o Solver.o FGAFile.o VelocityGrid.o
 PROJECT = ParticleSystem
 
 ${PROJECT}:	${PROJECT}.o $(OFILES)
@@ -32,10 +32,28 @@ ${PROJECT}:	${PROJECT}.o $(OFILES)
 ${PROJECT}.o: ${PROJECT}.${C} $(HFILES)
 	${CC} $(CFLAGS) -c ${PROJECT}.${C}
 
+Solver.o: Solver.${C} Matrix.${H} Vector.${H} Utility.${H} Collider.${H} Emitter.${H} Particle.${H} Solver.${H} FGAFile.${H} VelocityGrid.${H}
+	${CC} $(CFLAGS) -c Solver.${C}
+
+Collider.o: Collider.${C} Vector.${H} Utility.${H}
+	${CC} $(CFLAGS) -c Collider.${C}
+
+Emitter.o: Emitter.${C} Matrix.${H} Vector.${H} Utility.${H} Particle.${H}
+	${CC} $(CFLAGS) -c Emitter.${C}
+
+Particle.o: Particle.${C} Matrix.${H} Vector.${H} Utility.${H}
+	${CC} $(CFLAGS) -c Particle.${C}
+
+FGAFile.o: FGAFile.${C} Matrix.${H} Vector.${H} Utility.${H} VelocityGrid.${H}
+	${CC} $(CFLAGS) -c FGAFile.${C}
+
+VelocityGrid.o: VelocityGrid.${C} Matrix.${H} Vector.${H} Utility.${H}
+	${CC} $(CFLAGS) -c VelocityGrid.${C}
+
 Camera.o: Camera.${C} Camera.${H} Matrix.${H} Vector.${H} Utility.${H} 
 	${CC} $(CFLAGS) -c Camera.${C}
 
-Matrix.o: Matrix.${C} Matrix.${H} Vector.${H} Utility.${H} 
+Matrix.o: Matrix.${C} Matrix.${H} Vector.${H} Utility.${H}
 	${CC} $(CFLAGS) -c Matrix.${C}
 
 Vector.o: Vector.${C} Vector.${H} Utility.${H} 
