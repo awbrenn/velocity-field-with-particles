@@ -124,6 +124,7 @@ int Solver::particleInCollider(Vector3d particle_position) {
 void Solver::emitParticles(size_t number_of_particles, vector<Emitter>::iterator emitter) {
   Vector3d pos; // initial position of particle
   Vector3d vel; // initial velocity of particle
+  Vector3d color;
   double mass; // initial mass of particle
   double lifetime; // initial lifetime of particle
 
@@ -136,11 +137,14 @@ void Solver::emitParticles(size_t number_of_particles, vector<Emitter>::iterator
     vel = (0.0, 0.0, 0.0);
     mass = gaussian_distribution(emitter->particle_mass_avg, emitter->particle_mass_sdv);
     lifetime = gaussian_distribution(emitter->particle_life_avg, emitter->particle_life_sdv);
+    color.x = gaussian_distribution(emitter->particle_color_avg.x, emitter->particle_color_sdv);
+    color.y = gaussian_distribution(emitter->particle_color_avg.y, emitter->particle_color_sdv);
+    color.z = gaussian_distribution(emitter->particle_color_avg.z, emitter->particle_color_sdv);
 
     // Don't create the particle if it is inside a collider
     if (particleInCollider(pos) == NO_COLLISION) {
       // create a new particle
-      particles.push_back(Particle(pos, vel, mass, lifetime));
+      particles.push_back(Particle(pos, vel, color, mass, lifetime));
     }
   }
 }

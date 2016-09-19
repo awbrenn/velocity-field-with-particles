@@ -11,11 +11,12 @@ class Particle {
   public:
     Vector3d pos;
     Vector3d vel;
+    Vector3d color;
     double mass;
     double lifetime;
     double life_left; // amount of life left in the particle
     bool active;
-    Particle(Vector3d pos, Vector3d vel, double mass, double lifetime);
+    Particle(Vector3d pos, Vector3d vel, Vector3d color, double mass, double lifetime);
 };
 
 

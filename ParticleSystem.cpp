@@ -1,5 +1,6 @@
 //
 // Created by Austin Brennan on 9/12/16
+// See readme.md for more details
 //
 #include "Camera.h"
 #include "FGAFile.h"
@@ -22,6 +23,9 @@ bool showReferenceGrid = true;
 bool showVelocityGrid = true;
 bool showReferenceParticles = true;
 bool showReferenceColliders = true;
+bool showRenderParticles = false;
+bool renderAsPoints = true;
+bool renderAsLines = false;
 
 // draws a simple grid
 void drawReferenceGrid() {
@@ -129,8 +133,6 @@ void initCameraDebug() {
   glShadeModel(GL_SMOOTH);
   glDepthRange(0.0f, 1.0f);
 
-//  glEnable(GL_DEPTH_TEST);
-//  glDepthFunc(GL_LEQUAL);
   glEnable(GL_NORMALIZE);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -147,11 +149,43 @@ void initCameraRender() {
   glShadeModel(GL_SMOOTH);
   glDepthRange(0.0f, 1.0f);
 
-//  glEnable(GL_DEPTH_TEST);
-//  glDepthFunc(GL_LEQUAL);
   glEnable(GL_NORMALIZE);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void renderParticles() {
+  glPointSize(2.5f);
+  double percentage_of_life;
+
+  if (renderAsPoints) {
+    for (auto p = solver->particles.begin(); p != solver->particles.end(); ++p) {
+      percentage_of_life = p->life_left / p->lifetime;
+      glColor3f(p->color.x * percentage_of_life, p->color.y * percentage_of_life, p->color.z * percentage_of_life);
+
+      glBegin(GL_POINTS);
+      glVertex3f((GLfloat) p->pos.x,
+                 (GLfloat) p->pos.y,
+                 (GLfloat) p->pos.z);
+      glEnd();
+    }
+  }
+  else if (renderAsLines) {
+    for (auto p = solver->particles.begin(); p != solver->particles.end(); ++p) {
+      percentage_of_life = p->life_left / p->lifetime;
+
+      glBegin(GL_LINES);
+      glColor3f(p->color.x * percentage_of_life, p->color.y * percentage_of_life, p->color.z * percentage_of_life);
+      glVertex3f((GLfloat) p->pos.x,
+                 (GLfloat) p->pos.y,
+                 (GLfloat) p->pos.z);
+
+      glVertex3f((GLfloat) p->pos.x + p->vel.x,
+                 (GLfloat) p->pos.y + p->vel.y,
+                 (GLfloat) p->pos.z + p->vel.z);
+      glEnd();
+    }
+  }
 }
 
 void perspDisplay() {
@@ -171,6 +205,8 @@ void perspDisplay() {
     drawParticles();
   if (showReferenceColliders)
     drawColliders();
+  if (showRenderParticles)
+    renderParticles();
 
   glFlush();
   glutSwapBuffers();
@@ -187,10 +223,10 @@ void initializeSimulation(char *paramfile_name) {
   double emission_rate, emitter_radius, timestep,
          particle_mass_avg, particle_mass_sdv,
          particle_life_avg, particle_life_sdv,
-         collider_radius;
+         particle_color_sdv, collider_radius;
   size_t max_number_of_particles, substeps;
   bool emit_on_surface;
-  Vector3d emitter_position, collider_position;
+  Vector3d emitter_position, collider_position, particle_color_avg;
   std::vector<Emitter> emitters;
   std::vector<Collider> colliders;
   std::string skipline;
@@ -231,9 +267,18 @@ void initializeSimulation(char *paramfile_name) {
     // extract particle values for current emitter
     paramfile_stream >> particle_life_avg >> particle_life_sdv;
 
+    // skip some lines
+    getline(paramfile_stream, skipline);
+    getline(paramfile_stream, skipline);
+    getline(paramfile_stream, skipline);
+
+    paramfile_stream >> particle_color_avg.x >> particle_color_avg.y >>
+                        particle_color_avg.z >> particle_color_sdv;
+
     emitters.push_back(Emitter(emission_rate, emitter_radius, emit_on_surface, emitter_position,
                                particle_mass_avg, particle_mass_sdv,
-                               particle_life_avg, particle_life_sdv));
+                               particle_life_avg, particle_life_sdv,
+                               particle_color_avg, particle_color_sdv));
 
     // skip some lines
     getline(paramfile_stream, skipline);
@@ -289,6 +334,9 @@ void keyboardEventHandler(unsigned char key, int x, int y) {
     // render the particles
     showReferenceGrid = false;
     showVelocityGrid = false;
+    showReferenceColliders = false;
+    showReferenceParticles = false;
+    showRenderParticles = true;
     initCameraRender();
     ;
     break;
@@ -297,7 +345,24 @@ void keyboardEventHandler(unsigned char key, int x, int y) {
     // render the particles
     showReferenceGrid = true;
     showVelocityGrid = true;
+    showReferenceColliders = true;
+    showReferenceParticles = true;
+    showRenderParticles = false;
     initCameraDebug();
+    ;
+    break;
+
+  case 'p': case 'P':
+    // render the particles as points
+    renderAsPoints = true;
+    renderAsLines = false;
+    ;
+    break;
+
+  case 'l': case 'L':
+    // render the particles as lines
+    renderAsLines = true;
+    renderAsPoints = false;
     ;
     break;
 

@@ -10,6 +10,9 @@ Particle mass average, Particle mass standard deviation
 Particle lifetime average, Particle lifetime standard deviation
                       4.0                                   0.5
 
+Particle color (r g b) avg, Particle color standard deviation
+            0.25 0.61 0.34                                0.1
+
 Collider position (x y z), Collider radius
               1.0 -4.0 1.0              3.0
 
