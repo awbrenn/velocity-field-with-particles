@@ -20,6 +20,8 @@ Solver *solver;
 
 bool showReferenceGrid = true;
 bool showVelocityGrid = true;
+bool showReferenceParticles = true;
+bool showReferenceColliders = true;
 
 // draws a simple grid
 void drawReferenceGrid() {
@@ -116,7 +118,7 @@ void drawColliders() {
 }
 
 
-void initCamera() {
+void initCameraDebug() {
   // set up camera
   // parameters are eye point, aim point, up vector
   camera = new Camera(Vector3d(0, 5, 5), Vector3d(0, 0, 0),
@@ -124,6 +126,24 @@ void initCamera() {
 
   // grey background for window
   glClearColor(0.62, 0.62, 0.62, 0.0f);
+  glShadeModel(GL_SMOOTH);
+  glDepthRange(0.0f, 1.0f);
+
+//  glEnable(GL_DEPTH_TEST);
+//  glDepthFunc(GL_LEQUAL);
+  glEnable(GL_NORMALIZE);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void initCameraRender() {
+  // set up camera
+  // parameters are eye point, aim point, up vector
+  camera = new Camera(Vector3d(0, 5, 5), Vector3d(0, 0, 0),
+                      Vector3d(0, 1, 0));
+
+  // black background for window
+  glClearColor(0.0, 0.0, 0.0, 0.0f);
   glShadeModel(GL_SMOOTH);
   glDepthRange(0.0f, 1.0f);
 
@@ -147,8 +167,10 @@ void perspDisplay() {
     drawReferenceGrid();
   if (showVelocityGrid)
     drawVelocityGrid();
-  drawParticles();
-  drawColliders();
+  if (showReferenceParticles)
+    drawParticles();
+  if (showReferenceColliders)
+    drawColliders();
 
   glFlush();
   glutSwapBuffers();
@@ -264,16 +286,32 @@ void motionEventHandler(int x, int y) {
 void keyboardEventHandler(unsigned char key, int x, int y) {
   switch (key) {
   case 'r': case 'R':
-    // reset the camera to its initial position
-    camera->Reset();
+    // render the particles
+    showReferenceGrid = false;
+    showVelocityGrid = false;
+    initCameraRender();
+    ;
     break;
 
-  case 'f': case 'F':
-    camera->SetCenterOfFocus(Vector3d(0, 0, 0));
+  case 'd': case 'D':
+    // render the particles
+    showReferenceGrid = true;
+    showVelocityGrid = true;
+    initCameraDebug();
+    ;
+    break;
+
+  case 'v': case 'V':
+    showVelocityGrid = !showVelocityGrid;
+    ;
     break;
 
   case 'g': case 'G':
     showReferenceGrid = !showReferenceGrid;
+    break;
+
+  case 'f': case 'F':
+    camera->SetCenterOfFocus(Vector3d(0, 0, 0));
     break;
 
   case 'q': case 'Q':	// q or esc - quit
@@ -300,7 +338,7 @@ int main(int argc, char *argv[]) {
   int persp_win = glutCreateWindow("Simulating Particles In a Velocity Field");
 
   // initialize the camera and such
-  initCamera();
+  initCameraDebug();
 
   // set up opengl callback functions
   glutDisplayFunc(perspDisplay);

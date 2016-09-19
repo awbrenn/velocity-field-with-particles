@@ -15,6 +15,7 @@ class Collider {
     Vector3d pos; // position of the collider
     double radius; // radius of the collider
 
+    Collider();
     Collider(Vector3d pos, double radius);
 };
 

@@ -11,7 +11,7 @@ Particle lifetime average, Particle lifetime standard deviation
                       4.0                                   0.5
 
 Collider position (x y z), Collider radius
-              1.0 1.0 1.0              0.5
+              1.0 -4.0 1.0              3.0
 
 Max number of particles, Timestep (h), Substeps (calculation steps per render)
-                  200000         0.001        20
+                 200000         0.001        20

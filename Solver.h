@@ -29,6 +29,8 @@ class Solver {
     void emitParticles(size_t number_of_particles, vector<Emitter>::iterator emitter);
     void updateParticles();
     size_t getNumerOfParticlesToEmit(vector<Emitter>::iterator emitter);
+    int particleInCollider(Vector3d particle_position);
+    int NO_COLLISION = -1;
 
     // Constructor helper
     void init(size_t max_num_of_particles, std::vector<Emitter> emitters,

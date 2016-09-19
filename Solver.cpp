@@ -28,8 +28,12 @@ void Solver::init(size_t Max_num_of_particles, std::vector<Emitter> Emitters,
 
 void Solver::updateParticles() {
   Vector3d vel_from_grid; // velocity from the velocity grid
-  Vector3d vel_new;
-  double particle_mass;
+  Vector3d pos_new, vel_new, pos_collision, vel_collision, vel_normal, vel_tangent;
+  Vector3d collider_normal;
+  double distance_to_collider, total_distance;
+  int collider_index;
+  Collider collider; //
+  double particle_mass, s;
 
   // update the particle attributes
   for(auto p = particles.begin(); p != particles.end(); ++p) {
@@ -39,8 +43,29 @@ void Solver::updateParticles() {
     particle_mass = p->mass ? p->mass > 0.0 : DBL_MIN;
 
     vel_new = p->vel + vel_from_grid * 1.0/particle_mass * h;
-    p->pos = p->pos + ((vel_new + p->vel) / 2.0) * h;
-    p->vel = vel_new;
+    pos_new = p->pos + ((vel_new + p->vel) / 2.0) * h;
+
+    collider_index = particleInCollider(pos_new);
+    if (particleInCollider(pos_new) == NO_COLLISION) { // no collision occurred
+      p->pos = pos_new;
+      p->vel = vel_new;
+    }
+    else { // a collision occurred
+      collider = colliders.at((size_t) collider_index);
+      distance_to_collider = (collider.pos - p->pos).norm() - collider.radius;
+      total_distance = (pos_new - p->pos).norm(); // total distance the particle traveled
+      s = distance_to_collider / total_distance; // fraction of timestep before collision
+      vel_collision = p->vel + vel_from_grid * 1.0/particle_mass * h * s;
+      pos_collision = p->pos + p->vel * h * s;
+      collider_normal = (pos_collision - collider.pos).normalize();
+      vel_normal = -1.0 * (vel_collision * collider_normal);
+      vel_tangent = vel_collision - vel_normal;
+      vel_collision = vel_normal + vel_tangent;
+      vel_from_grid = velocity_grid.get_velocity(pos_collision);
+      p->vel = vel_collision + vel_from_grid * 1.0/particle_mass * h * (1.0 - s);
+      p->pos = pos_collision + vel_collision * h * (1.0 - s);
+    }
+
     p->life_left = p->life_left - h; // increment the lifetime down by a timestep
   }
 
@@ -82,6 +107,20 @@ double Solver::gaussian_distribution(double x, double std_deviation) {
 }
 
 
+int Solver::particleInCollider(Vector3d particle_position) {
+  int collider = NO_COLLISION; // the collider the particle is inside
+
+  // check each collider to see if the particle is inside it
+  for (auto c = colliders.begin(); c != colliders.end(); ++c) {
+    if ((c->pos - particle_position).norm() < c->radius) {
+      collider = c - colliders.begin();
+    }
+  }
+
+  return collider;
+}
+
+
 void Solver::emitParticles(size_t number_of_particles, vector<Emitter>::iterator emitter) {
   Vector3d pos; // initial position of particle
   Vector3d vel; // initial velocity of particle
@@ -98,8 +137,11 @@ void Solver::emitParticles(size_t number_of_particles, vector<Emitter>::iterator
     mass = gaussian_distribution(emitter->particle_mass_avg, emitter->particle_mass_sdv);
     lifetime = gaussian_distribution(emitter->particle_life_avg, emitter->particle_life_sdv);
 
-    // create a new particle
-    particles.push_back(Particle(pos, vel, mass, lifetime));
+    // Don't create the particle if it is inside a collider
+    if (particleInCollider(pos) == NO_COLLISION) {
+      // create a new particle
+      particles.push_back(Particle(pos, vel, mass, lifetime));
+    }
   }
 }
 
