@@ -1,3 +1,11 @@
+**Author: ** Austin Brennan
+
+**Date: ** 9/19/2016
+
+**Course: ** CPSC 8170 - Physically Based Animation (Dr. Donald House)
+
+**Institution: ** Clemson University
+
 # Voxel Velocity Field With Particles Solver
 A particle system that is influenced by the velocities of a velocity field rendered in OpenGL.
 
@@ -22,6 +30,14 @@ For this assignment, you are to extend the concepts that you developed in your b
 
 ## Usage
 ```
-$> BouncingBall parameters
+$> ParticleSystem parameters
+```
+
+## Interaction
+```
+r or R - Activate render mode
+l or L - Activate line render in render mode
+p or P - Activate point render in render mode
+d or D - Activate debug view of particle simulation
 ```
 
