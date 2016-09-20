@@ -6,9 +6,22 @@ For this assignment, you are to extend the concepts that you developed in your b
 
 ##Features
 * FGA file reader for reading in velocity grids
+* Particle emission randomly distributed in a cube
 * Multiple emitter support
 * Multiple sphere collider support
 * Adjustable particle color
 * Velocity grid visualization
 
-##Usage
+## Un-Implemented
+* Parameter file option for multiple emitters
+* Parameter file option for multiple colliders
+* Particle emission on sphere surfaces
+* Particle emission within a sphere
+* Collision with polygonal planes
+* Improved rendering of particles
+
+## Usage
+```
+$> BouncingBall parameters
+```
+
