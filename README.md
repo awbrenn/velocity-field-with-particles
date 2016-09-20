@@ -26,6 +26,13 @@ For this assignment, you are to extend the concepts that you developed in your b
 * Collision with polygonal planes
 * Improved rendering of particles
 
+
+## Compilation
+```
+$> make
+```
+
+
 ## Usage
 ```
 $> ParticleSystem parameters
