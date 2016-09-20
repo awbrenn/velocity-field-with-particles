@@ -37,5 +37,14 @@ r or R - Activate render mode
 l or L - Activate line render in render mode
 p or P - Activate point render in render mode
 d or D - Activate debug view of particle simulation
+g   - Toggle grid
+esc - Quit the program
+q   - Quit the program
 ```
 
+## Acknowledgements
+Vector Class - Donald House
+
+Matrix Class - Donald House
+
+Camera Class - Christopher Root, Donald House, Yujie Shu
