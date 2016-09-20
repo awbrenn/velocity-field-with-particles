@@ -1,10 +1,7 @@
-**Author:** Austin Brennan
-
-**Date:** 9/19/2016
-
-**Course:** CPSC 8170 - Physically Based Animation (Dr. Donald House)
-
-**Institution:** Clemson University
+**Author:** Austin Brennan  
+**Date:** 9/19/2016  
+**Course:** CPSC 8170 - Physically Based Animation (Dr. Donald House)  
+**Institution:** Clemson University  
 
 # Voxel Velocity Field With Particles Solver
 A particle system that is influenced by the velocities of a velocity field rendered in OpenGL.
