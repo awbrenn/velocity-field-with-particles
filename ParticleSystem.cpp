@@ -219,6 +219,143 @@ void simulateParticles() {
 
 void initializeSimulation(char *paramfile_name) {
   std::ifstream paramfile_stream;
+  double emission_rate, emitter_radius, timestep,
+          particle_mass_avg, particle_mass_sdv,
+          particle_life_avg, particle_life_sdv,
+          particle_color_sdv, particle_radius, collider_radius,
+          gravity, coeff_of_restitution, coeff_of_friction;
+
+  size_t max_number_of_particles, substeps;
+  bool emit_on_surface;
+  Vector3d emitter_position, collider_position, particle_color_avg;
+  std::vector<Emitter> emitters;
+  std::vector<Collider> colliders;
+  std::string skipline;
+  std::string velocity_grid_name;
+  std::string param_descriptor;
+
+  paramfile_stream.open(paramfile_name, std::ios_base::in);
+
+  // read the file
+  if (paramfile_stream) {
+    while (!paramfile_stream.eof()) {
+      // get the descriptor
+      getline(paramfile_stream, param_descriptor);
+
+      if (param_descriptor.compare("EMITTER") == 0) {
+        // skip the first line
+        getline(paramfile_stream, skipline);
+
+        // extract the name of the velocity grid
+        paramfile_stream >> velocity_grid_name;
+
+        // skip some lines
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+
+        // extract emitter values
+        paramfile_stream >> emission_rate >> emitter_radius >>
+                         emitter_position.x >> emitter_position.y >>
+                         emitter_position.z >> std::boolalpha >> emit_on_surface;
+
+        // skip some lines
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+
+        // extract particle values for current emitter
+        paramfile_stream >> particle_mass_avg >> particle_mass_sdv;
+
+        // skip some lines
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+
+        // extract particle values for current emitter
+        paramfile_stream >> particle_life_avg >> particle_life_sdv;
+
+        // skip some lines
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+
+        paramfile_stream >> particle_color_avg.x >> particle_color_avg.y >>
+                         particle_color_avg.z >> particle_color_sdv;
+
+        // skip some lines
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+
+        emitters.push_back(Emitter(emission_rate, emitter_radius, emit_on_surface, emitter_position,
+                                   particle_mass_avg, particle_mass_sdv,
+                                   particle_life_avg, particle_life_sdv,
+                                   particle_color_avg, particle_color_sdv));
+
+        // skip some lines
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+      }
+
+      else if (param_descriptor.compare("COLLIDER") == 0) {
+        // skip the first line
+        getline(paramfile_stream, skipline);
+
+        // extract collider values
+        paramfile_stream >> collider_position.x >> collider_position.y >>
+                         collider_position.z >> collider_radius;
+
+        colliders.push_back(Collider(collider_position, collider_radius));
+
+        // skip some lines
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+      }
+
+      else if (param_descriptor.compare("SOLVER") == 0) {
+        // skip the first line
+        getline(paramfile_stream, skipline);
+
+        // extract solver values
+        paramfile_stream >> max_number_of_particles >> timestep >> substeps;
+
+        // skip some lines
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+        paramfile_stream >> gravity >> coeff_of_restitution >> coeff_of_friction;
+
+        // skip some lines
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+        getline(paramfile_stream, skipline);
+
+        // extract
+
+
+        // skip the last line
+        getline(paramfile_stream, skipline);
+      }
+    }
+  }
+  else {
+    std::cerr << "Unable to open file " << paramfile_name << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  // read the velocity grid
+  VelocityGrid velocity_grid;
+  FGAFile fga_file;
+  fga_file.read(velocity_grid_name, &velocity_grid);
+  velocity_grid.generate_voxel_locations();
+
+  solver = new Solver(max_number_of_particles, emitters, colliders,
+                      velocity_grid, timestep, substeps, gravity);
+}
+
+void initializeSimulation(char *paramfile_name) {
+  std::ifstream paramfile_stream;
   std::string velocity_grid_name;
   double emission_rate, emitter_radius, timestep,
          particle_mass_avg, particle_mass_sdv,

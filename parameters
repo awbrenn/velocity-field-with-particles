@@ -1,20 +1,22 @@
-Velocity grid filename
-/home/awbrenn/Documents/workspace/physanim/2/vel.74.fga
+EMITTER
+        Velocity grid file path
+        /home/awbrenn/Documents/workspace/physanim/2/vel.74.fga
 
-Emission Rate, Emitter radius, Emitter position (x y z), Emit on surface
-       1000.0             2.0               0.0 0.0 0.0            false
+        Emission Rate, Emitter radius, Emitter position (x y z), Emit on surface
+                10.0            0.5              0.0 -1.0 0.0            false
 
-Particle mass average, Particle mass standard deviation
-                 12.0                               5.0
+        Particle mass average, Particle mass standard deviation
+                         1.0                               0.0
 
-Particle lifetime average, Particle lifetime standard deviation
-                      4.0                                   0.5
+        Particle lifetime average, Particle lifetime standard deviation
+                               4                                   0.005
 
-Particle color (r g b) avg, Particle color standard deviation
-            0.25 0.61 0.34                                0.1
+        Particle color (r g b) avg, Particle color standard deviation
+                    0.25 0.61 0.34                                0.1
 
-Collider position (x y z), Collider radius
-              1.0 -4.0 1.0              3.0
+SOLVER:
+    Max number of particles, Timestep (h), Substeps (calculation steps per render)
+                     200000         0.001        20
 
-Max number of particles, Timestep (h), Substeps (calculation steps per render)
-                 200000         0.001        20
+    Gravity
+        9.8
