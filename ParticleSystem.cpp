@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "FGAFile.h"
 #include "Solver.h"
+#include "ObjWriter.h"
 
 #ifdef __APPLE__
 #  pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -18,6 +19,7 @@ int HEIGHT = 720;
 
 Camera *camera;
 Solver *solver;
+ObjWriter particle_writer;
 
 bool showReferenceGrid = true;
 bool showVelocityGrid = true;
@@ -26,6 +28,8 @@ bool showReferenceColliders = true;
 bool showRenderParticles = false;
 bool renderAsPoints = true;
 bool renderAsLines = false;
+bool writeObjSequence = false;
+unsigned int FRAME_NUMBER = 0;
 
 // draws a simple grid
 void drawReferenceGrid() {
@@ -214,6 +218,11 @@ void perspDisplay() {
 
 void simulateParticles() {
   solver->update();
+  if (writeObjSequence) {
+    particle_writer.writeParticles(solver->particles, "/home/awbrenn/Documents/workspace/physanim/2/obj_sequence/",
+                                   "particles", FRAME_NUMBER++);
+  }
+
   glutPostRedisplay();
 }
 
@@ -377,6 +386,10 @@ void keyboardEventHandler(unsigned char key, int x, int y) {
 
   case 'f': case 'F':
     camera->SetCenterOfFocus(Vector3d(0, 0, 0));
+    break;
+
+  case 'w': case 'W':
+    writeObjSequence = !writeObjSequence;
     break;
 
   case 'q': case 'Q':	// q or esc - quit
