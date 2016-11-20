@@ -17,6 +17,5 @@ EMITTER
 SOLVER:
     Max number of particles, Timestep (h), Substeps (calculation steps per render)
                      200000         0.001        20
-
     Gravity
         9.8
