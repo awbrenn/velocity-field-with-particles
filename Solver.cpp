@@ -4,15 +4,16 @@
 
 #include "Solver.h"
 
-Solver::Solver(size_t Max_num_of_particles, std::vector<Emitter> Emitters,
-               std::vector<Collider> Colliders, VelocityGrid Velocity_grid,
-               double H, size_t Substeps) {
-  init(Max_num_of_particles, Emitters, Colliders, Velocity_grid, H, Substeps);
+Solver::Solver(size_t Max_num_of_particles, std::vector<Emitter> Emitters, std::vector<Collider> Colliders,
+               VelocityGrid Velocity_grid, double velocity_grid_scale, double gravity, Vector3d wind_force,
+               double air_resistance, double H, size_t Substeps) {
+  init(Max_num_of_particles, Emitters, Colliders, Velocity_grid, velocity_grid_scale, gravity, wind_force,
+          air_resistance, H, Substeps);
 }
 
-void Solver::init(size_t Max_num_of_particles, std::vector<Emitter> Emitters,
-                  std::vector<Collider> Colliders, VelocityGrid Velocity_grid,
-                  double H, size_t Substeps) {
+void Solver::init(size_t Max_num_of_particles, std::vector<Emitter> Emitters, std::vector<Collider> Colliders,
+                  VelocityGrid Velocity_grid, double Velocity_grid_scale, double Gravity, Vector3d Wind_force,
+                  double Air_resistance, double H, size_t Substeps) {
   srand ((unsigned int) time(NULL));
   max_num_of_particles = Max_num_of_particles;
   particles.reserve(max_num_of_particles);
@@ -20,14 +21,31 @@ void Solver::init(size_t Max_num_of_particles, std::vector<Emitter> Emitters,
   emitters = Emitters;
   colliders = Colliders;
   velocity_grid = Velocity_grid;
+  velocity_grid_scale = Velocity_grid_scale;
+  gravity = Gravity;
+  wind_force = Wind_force;
+  air_resistance = Air_resistance;
   h = H;
   substeps = Substeps;
   missed_particle = 0.0;
 }
 
 
+
+Vector3d Solver::calculate_acceleration(Vector3d pos, Vector3d vel) {
+  Vector3d velocity_grid_acc;
+  Vector3d acceleration;
+  Vector3d gravity_acc(0.0, gravity, 0.0);
+
+  velocity_grid_acc = velocity_grid.get_velocity(pos) * velocity_grid_scale;
+  acceleration = gravity_acc + wind_force + velocity_grid_acc + (air_resistance * (-1.0 * vel));
+
+  return acceleration;
+}
+
+
 void Solver::updateParticles() {
-  Vector3d vel_from_grid; // velocity from the velocity grid
+  Vector3d acceleration; // velocity from the velocity grid
   Vector3d pos_new, vel_new, pos_collision, vel_collision, vel_normal, vel_tangent;
   Vector3d collider_normal;
   double distance_to_collider, total_distance;
@@ -37,12 +55,12 @@ void Solver::updateParticles() {
 
   // update the particle attributes
   for(auto p = particles.begin(); p != particles.end(); ++p) {
-    vel_from_grid = velocity_grid.get_velocity(p->pos);
+    acceleration = calculate_acceleration(p->pos, p->vel);
 
     // adjust the mass in the case that we have a negative or zero mass
     particle_mass = p->mass ? p->mass > 0.0 : DBL_MIN;
 
-    vel_new = p->vel + vel_from_grid * 1.0/particle_mass * h;
+    vel_new = p->vel + acceleration * 1.0/particle_mass * h;
     pos_new = p->pos + ((vel_new + p->vel) / 2.0) * h;
 
     collider_index = particleInCollider(pos_new);
@@ -55,14 +73,14 @@ void Solver::updateParticles() {
       distance_to_collider = (collider.pos - p->pos).norm() - collider.radius;
       total_distance = (pos_new - p->pos).norm(); // total distance the particle traveled
       s = distance_to_collider / total_distance; // fraction of timestep before collision
-      vel_collision = p->vel + vel_from_grid * 1.0/particle_mass * h * s;
+      vel_collision = p->vel + acceleration * 1.0/particle_mass * h * s;
       pos_collision = p->pos + p->vel * h * s;
       collider_normal = (pos_collision - collider.pos).normalize();
       vel_normal = -1.0 * (vel_collision * collider_normal);
       vel_tangent = vel_collision - vel_normal;
       vel_collision = vel_normal + vel_tangent;
-      vel_from_grid = velocity_grid.get_velocity(pos_collision);
-      p->vel = vel_collision + vel_from_grid * 1.0/particle_mass * h * (1.0 - s);
+      acceleration = velocity_grid.get_velocity(pos_collision);
+      p->vel = vel_collision + acceleration * 1.0/particle_mass * h * (1.0 - s);
       p->pos = pos_collision + vel_collision * h * (1.0 - s);
     }
 
@@ -131,9 +149,20 @@ void Solver::emitParticles(size_t number_of_particles, vector<Emitter>::iterator
   for(int i = 0; i < number_of_particles; ++i) {
     // TODO: update this to actually emit in a sphere (Emitting in cube now)
     // create initial particle attributes
-    pos.x = emitter->pos.x + gaussian_distribution(emitter->pos.x, emitter->radius);
-    pos.y = emitter->pos.y + gaussian_distribution(emitter->pos.y, emitter->radius);
-    pos.z = emitter->pos.x + gaussian_distribution(emitter->pos.x, emitter->radius);
+    if (emitter->even_dist) {
+      pos.x = emitter->pos.x + uniform_distribution(emitter->pos.x - emitter->size.x / 2.0,
+                                                    emitter->pos.x + emitter->size.x / 2.0);
+      pos.y = emitter->pos.y + uniform_distribution(emitter->pos.y - emitter->size.y / 2.0,
+                                                    emitter->pos.y + emitter->size.y / 2.0);
+      pos.z = emitter->pos.x + uniform_distribution(emitter->pos.x - emitter->size.z / 2.0,
+                                                    emitter->pos.x + emitter->size.z / 2.0);
+    }
+    else {
+      pos.x = emitter->pos.x + gaussian_distribution(emitter->pos.x, emitter->size.x);
+      pos.y = emitter->pos.y + gaussian_distribution(emitter->pos.y, emitter->size.y);
+      pos.z = emitter->pos.x + gaussian_distribution(emitter->pos.x, emitter->size.z);
+    }
+
     vel = (0.0, 0.0, 0.0);
     mass = gaussian_distribution(emitter->particle_mass_avg, emitter->particle_mass_sdv);
     lifetime = gaussian_distribution(emitter->particle_life_avg, emitter->particle_life_sdv);

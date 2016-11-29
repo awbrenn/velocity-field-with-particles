@@ -229,13 +229,14 @@ void simulateParticles() {
 void initializeSimulation(char *paramfile_name) {
   std::ifstream paramfile_stream;
   std::string velocity_grid_name;
-  double emission_rate, emitter_radius, timestep,
+  double emission_rate, timestep,
          particle_mass_avg, particle_mass_sdv,
          particle_life_avg, particle_life_sdv,
-         particle_color_sdv, collider_radius;
+         particle_color_sdv, collider_radius,
+         gravity, velocity_grid_scale, air_resistance;
   size_t max_number_of_particles, substeps;
-  bool emit_on_surface;
-  Vector3d emitter_position, collider_position, particle_color_avg;
+  bool emit_on_surface, even_dist;
+  Vector3d emitter_position, emmiter_size, collider_position, particle_color_avg, wind_force;
   std::vector<Emitter> emitters;
   std::vector<Collider> colliders;
   std::string skipline;
@@ -256,9 +257,10 @@ void initializeSimulation(char *paramfile_name) {
     getline(paramfile_stream, skipline);
 
     // extract emitter values
-    paramfile_stream >> emission_rate >> emitter_radius >>
+    paramfile_stream >> emission_rate >> emmiter_size.x >> emmiter_size.y >> emmiter_size.z >>
                         emitter_position.x >> emitter_position.y >>
-                        emitter_position.z >> std::boolalpha >> emit_on_surface;
+                        emitter_position.z >> std::boolalpha >> emit_on_surface >>
+                        even_dist;
 
     // skip some lines
     getline(paramfile_stream, skipline);
@@ -284,21 +286,17 @@ void initializeSimulation(char *paramfile_name) {
     paramfile_stream >> particle_color_avg.x >> particle_color_avg.y >>
                         particle_color_avg.z >> particle_color_sdv;
 
-    emitters.push_back(Emitter(emission_rate, emitter_radius, emit_on_surface, emitter_position,
-                               particle_mass_avg, particle_mass_sdv,
-                               particle_life_avg, particle_life_sdv,
-                               particle_color_avg, particle_color_sdv));
+    emitters.push_back(Emitter(emission_rate, emmiter_size, emit_on_surface, even_dist, emitter_position, particle_mass_avg,
+                               particle_mass_sdv, particle_life_avg, particle_life_sdv, particle_color_avg,
+                               particle_color_sdv));
 
     // skip some lines
     getline(paramfile_stream, skipline);
     getline(paramfile_stream, skipline);
     getline(paramfile_stream, skipline);
 
-    // extract collider values
-    paramfile_stream >> collider_position.x >> collider_position.y >>
-                        collider_position.z >> collider_radius;
-
-    colliders.push_back(Collider(collider_position, collider_radius));
+    paramfile_stream >> gravity >> wind_force.x >> wind_force.y >> wind_force.z >>
+                     velocity_grid_scale >> air_resistance;
 
     // skip some lines
     getline(paramfile_stream, skipline);
@@ -319,8 +317,8 @@ void initializeSimulation(char *paramfile_name) {
   fga_file.read(velocity_grid_name, &velocity_grid);
   velocity_grid.generate_voxel_locations();
 
-  solver = new Solver(max_number_of_particles, emitters, colliders,
-                      velocity_grid, timestep, substeps);
+  solver = new Solver(max_number_of_particles, emitters, colliders, velocity_grid, velocity_grid_scale, gravity,
+                      wind_force, air_resistance, timestep, substeps);
 
   cout << endl;
 }
