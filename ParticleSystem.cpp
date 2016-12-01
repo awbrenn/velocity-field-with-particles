@@ -22,7 +22,7 @@ Solver *solver;
 ObjWriter particle_writer;
 
 bool showReferenceGrid = true;
-bool showVelocityGrid = true;
+bool showVelocityGrid = false;
 bool showReferenceParticles = true;
 bool showReferenceColliders = true;
 bool showRenderParticles = false;
@@ -219,7 +219,7 @@ void perspDisplay() {
 void simulateParticles() {
   solver->update();
   if (writeObjSequence) {
-    particle_writer.writeParticles(solver->particles, "/home/awbrenn/Documents/workspace/physanim/2/obj_sequence/",
+    particle_writer.writeParticles(solver->particles, "obj_sequence/",
                                    "particles", FRAME_NUMBER++);
   }
 

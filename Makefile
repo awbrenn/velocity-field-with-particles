@@ -22,8 +22,8 @@ else
   endif
 endif
 
-HFILES 	= Matrix.${H} Vector.${H} Utility.${H} Camera.${H} Collider.${H} Emitter.${H} Particle.${H} Solver.${H} FGAFile.${H} VelocityGrid.${H}
-OFILES 	= Matrix.o Vector.o Utility.o Camera.o Collider.o Emitter.o Particle.o Solver.o FGAFile.o VelocityGrid.o
+HFILES 	= Matrix.${H} Vector.${H} Utility.${H} Camera.${H} Collider.${H} Emitter.${H} Particle.${H} Solver.${H} FGAFile.${H} VelocityGrid.${H} ObjWriter.${H}
+OFILES 	= Matrix.o Vector.o Utility.o Camera.o Collider.o Emitter.o Particle.o Solver.o FGAFile.o VelocityGrid.o ObjWriter.o
 PROJECT = ParticleSystem
 
 ${PROJECT}:	${PROJECT}.o $(OFILES)
@@ -61,6 +61,9 @@ Vector.o: Vector.${C} Vector.${H} Utility.${H}
 
 Utility.o: Utility.${C} Utility.${H}
 	${CC} $(CFLAGS) -c Utility.${C}
+
+ObjWriter.o: ObjWriter.${C} ObjWriter.${H} Particle.${C} Particle.${H}
+	${CC} $(CFLAGS) -c ObjWriter.${C}
 
 debug:
 	make 'DFLAGS = /usr/lib/debug/malloc.o'
